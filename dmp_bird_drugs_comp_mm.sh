@@ -60,12 +60,12 @@ select
     ,t1.org_id                                 --ouid                   
     ,t1.organization_id                        --库存组织id             
     ,t1.bus_type                               --业态    
-    ,'' --t2.product_line                           --产线
-    ,case when t2.material_segment2_id = '01' then t1.primary_quantity  else '0' end       --营养类耗用
-    ,case when t2.material_segment2_id = '04' then t1.primary_quantity  else '0' end       --消毒类耗用    
-    ,case when t2.material_segment2_id = '03' then t1.primary_quantity  else '0' end       --疫苗类耗用    
-    ,case when t2.material_segment2_id = '02' then t1.primary_quantity  else '0' end       --治疗类耗用    
-    ,case when (t2.material_segment2_id = '05' or t2.material_segment2_id = '99') then t1.primary_quantity else '0' end --其它类耗用      
+    ,'' --t2.product_line                      --产线
+    ,case when t2.material_segment2_id = '01' then coalesce(t1.primary_quantity,0)  else '0' end       --营养类耗用
+    ,case when t2.material_segment2_id = '04' then coalesce(t1.primary_quantity,0)  else '0' end       --消毒类耗用    
+    ,case when t2.material_segment2_id = '03' then coalesce(t1.primary_quantity,0)  else '0' end       --疫苗类耗用    
+    ,case when t2.material_segment2_id = '02' then coalesce(t1.primary_quantity,0)  else '0' end       --治疗类耗用    
+    ,case when (t2.material_segment2_id = '05' or t2.material_segment2_id = '99') then coalesce(t1.primary_quantity,0) else '0' end --其它类耗用      
   from (
   select  *  from 
   mreport_poultry.dwu_zq_kc01_dd  
@@ -78,6 +78,7 @@ select
   select * from mreport_global.dwu_dim_material_new 
   where material_segment1_id = '65'
   and material_segment2_id in ('01','02','03','04','05','99')                                     --（只取营养类，消毒类，疫苗类，抗生素，其它） 
+  and finance_segment1_desc = '兽药'
   ) t2 
   on t1.organization_id = t2.inv_org_id     
   and t1.material_id =t2.inventory_item_id
