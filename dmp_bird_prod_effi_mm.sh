@@ -54,21 +54,21 @@ echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>统计月总和蛋数，健雏>>>>>>>>>>>
 INSERT_TMP_DMP_BIRD_PROD_EFFI_MM_01="
 INSERT OVERWRITE TABLE $TMP_DMP_BIRD_PROD_EFFI_MM_01 PARTITION(op_month='$OP_MONTH')
 select
-    substr(t1.period_id,1,6)                                        --期间
-    ,t1.org_id                                                      --ou组织
-    ,t1.bus_type                                                    --业态
-    ,t1.product_line                                                --生产线
-    ,t1.farm_id                                                     --养殖场id   
-    ,t1.farm_name                                                   --养殖场
-    ,t1.big_batch_no                                                --大批次no
-    ,t1.big_batch_name                                              --大批次name
-    ,t1.qualified_egg                                               --养殖合格蛋 
-    ,t1.fh_check                                                    --fh验收商品蛋 
-    ,t1.standard_prod_qualified                                     --合格蛋数量（标准）
-    ,t1.qualified_egg-t1.fh_check                                   --实际验收合格蛋数
-    ,(t2.big_good_a+ t2.middle_good_a+t2.little_good_a+t2.good_b+t2.middle_goob_b+t2.big_parent_a+t2.little_parent_a)    --实际健雏数量
-    ,t2.big_good_a_standard                                         --标准健雏
-    ,t1.std_eggs_cost                                               --种蛋总成本(元)
+     coalesce(t1.period_id,t2.period_id)                                   --期间
+    ,coalesce(t1.org_id,t2.org_id)                                         --ou组织
+    ,coalesce(t1.bus_type,t2.bus_type)                                     --业态
+    ,coalesce(t1.product_line,t2.product_line)                             --生产线
+    ,coalesce(t1.farm_id,t2.farm_id)                                       --养殖场id   
+    ,coalesce(t1.farm_name,'缺省')                                   --养殖场
+    ,coalesce(t1.big_batch_no,t2.big_batch_no)                             --大批次no
+    ,coalesce(t1.big_batch_name,'缺省')                         --大批次name
+    ,coalesce(t1.qualified_egg,0)                                         --养殖合格蛋 
+    ,coalesce(t1.fh_check,0)                                              --fh验收商品蛋 
+    ,coalesce(t1.standard_prod_qualified,0)       --合格蛋数量（标准）
+    ,coalesce((t1.qualified_egg-t1.fh_check),0)                           --实际验收合格蛋数
+    ,coalesce((t2.big_good_a+ t2.middle_good_a+t2.little_good_a+t2.good_b+t2.middle_goob_b+t2.big_parent_a+t2.little_parent_a),0)    --实际健雏数量
+    ,coalesce(t2.big_good_a_standard,0) big_good_a_standard                        --标准健雏
+    ,coalesce(t1.std_eggs_cost,0)       std_eggs_cost                              --种蛋总成本(元)
 from (
  select
      substr(m1.period_id,1,6)   period_id                        --期间
@@ -98,7 +98,7 @@ from (
      ,m1.big_batch_no                                            --大批次no
      ,m1.big_batch_name
 )  t1                 --zq01 
-left join (
+full join (
   select
       substr(period_id,1,6)  period_id                            --期间
       ,d2.org_id                                                  --ou组织
