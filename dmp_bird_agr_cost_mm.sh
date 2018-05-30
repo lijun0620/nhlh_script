@@ -100,7 +100,7 @@ select
  ,case when account_desc  = '农业制造费用_变动_淘汰残值'          then nvl(account_net,0) else 0 end
  ,case when account_desc  = '农业制造费用_变动_其他'              then nvl(account_net,0) else 0 end
 from (select * from MREPORT_POULTRY.DWU_QW_FARM_WIP_EXPENSE 
-where op_day = '$OP_DAY') t1 
+where op_day = '$OP_DAY' and dept_desc not like '%猪%') t1 
  LEFT join 
    (  SELECT
                     from_currency,
